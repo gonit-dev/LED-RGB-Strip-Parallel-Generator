@@ -791,29 +791,45 @@ function generateCode() {
         return;
     }
 
-    const ledData = selected.map(([idx, color]) => {
+    // Group LEDs by color for compact output
+    const colorGroups = {};
+    selected.forEach(([idx, color]) => {
+        if (!colorGroups[color]) {
+            colorGroups[color] = [];
+        }
+        colorGroups[color].push(parseInt(idx));
+    });
+
+    // Generate compact LED data
+    const ledDataLines = [];
+    Object.entries(colorGroups).forEach(([color, indices]) => {
         const rgb = hexToRgb(color);
-        return `  {${idx}, ${rgb.r}, ${rgb.g}, ${rgb.b}}`;
-    }).join(',\n');
+        const sortedIndices = indices.sort((a, b) => a - b);
+        ledDataLines.push(`  {${sortedIndices.length}, {${sortedIndices.join(', ')}}, ${rgb.r}, ${rgb.g}, ${rgb.b}}`);
+    });
+    
+    const ledData = ledDataLines.join(',\n');
     
     const arduinoCode = `#include "FastLED.h"
 
 #define LED_PIN     6
 #define NUM_LEDS    ${totalLeds}
 #define BRIGHTNESS  50
+#define MAX_LEDS_PER_COLOR 50
 
 CRGB leds[NUM_LEDS];
 
-struct LEDColor {
-  uint16_t index;
+struct LEDGroup {
+  uint8_t count;
+  uint16_t indices[MAX_LEDS_PER_COLOR];
   uint8_t r, g, b;
 };
 
-const LEDColor ledColors[] = {
+const LEDGroup ledGroups[] = {
 ${ledData}
 };
 
-const uint8_t numColors = ${selected.length};
+const uint8_t numGroups = ${Object.keys(colorGroups).length};
 
 void setup() {
   FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
@@ -827,8 +843,10 @@ void setup() {
 
 void loop() {
   FastLED.clear();
-  for(uint8_t i = 0; i < numColors; i++) {
-    leds[ledColors[i].index] = CRGB(ledColors[i].r, ledColors[i].g, ledColors[i].b);
+  for(uint8_t g = 0; g < numGroups; g++) {
+    for(uint8_t i = 0; i < ledGroups[g].count; i++) {
+      leds[ledGroups[g].indices[i]] = CRGB(ledGroups[g].r, ledGroups[g].g, ledGroups[g].b);
+    }
   }
   FastLED.show();
   delay(50);
@@ -839,19 +857,21 @@ void loop() {
 #define LED_PIN     5
 #define NUM_LEDS    ${totalLeds}
 #define BRIGHTNESS  50
+#define MAX_LEDS_PER_COLOR 50
 
 CRGB leds[NUM_LEDS];
 
-struct LEDColor {
-  uint16_t index;
+struct LEDGroup {
+  uint8_t count;
+  uint16_t indices[MAX_LEDS_PER_COLOR];
   uint8_t r, g, b;
 };
 
-const LEDColor ledColors[] = {
+const LEDGroup ledGroups[] = {
 ${ledData}
 };
 
-const uint8_t numColors = ${selected.length};
+const uint8_t numGroups = ${Object.keys(colorGroups).length};
 
 void setup() {
   FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
@@ -865,8 +885,10 @@ void setup() {
 
 void loop() {
   FastLED.clear();
-  for(uint8_t i = 0; i < numColors; i++) {
-    leds[ledColors[i].index] = CRGB(ledColors[i].r, ledColors[i].g, ledColors[i].b);
+  for(uint8_t g = 0; g < numGroups; g++) {
+    for(uint8_t i = 0; i < ledGroups[g].count; i++) {
+      leds[ledGroups[g].indices[i]] = CRGB(ledGroups[g].r, ledGroups[g].g, ledGroups[g].b);
+    }
   }
   FastLED.show();
   delay(50);
@@ -877,19 +899,21 @@ void loop() {
 #define LED_PIN     D6
 #define NUM_LEDS    ${totalLeds}
 #define BRIGHTNESS  50
+#define MAX_LEDS_PER_COLOR 50
 
 CRGB leds[NUM_LEDS];
 
-struct LEDColor {
-  uint16_t index;
+struct LEDGroup {
+  uint8_t count;
+  uint16_t indices[MAX_LEDS_PER_COLOR];
   uint8_t r, g, b;
 };
 
-const LEDColor ledColors[] = {
+const LEDGroup ledGroups[] = {
 ${ledData}
 };
 
-const uint8_t numColors = ${selected.length};
+const uint8_t numGroups = ${Object.keys(colorGroups).length};
 
 void setup() {
   FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
@@ -903,8 +927,10 @@ void setup() {
 
 void loop() {
   FastLED.clear();
-  for(uint8_t i = 0; i < numColors; i++) {
-    leds[ledColors[i].index] = CRGB(ledColors[i].r, ledColors[i].g, ledColors[i].b);
+  for(uint8_t g = 0; g < numGroups; g++) {
+    for(uint8_t i = 0; i < ledGroups[g].count; i++) {
+      leds[ledGroups[g].indices[i]] = CRGB(ledGroups[g].r, ledGroups[g].g, ledGroups[g].b);
+    }
   }
   FastLED.show();
   delay(50);
@@ -915,19 +941,21 @@ void loop() {
 #define LED_PIN     PA6
 #define NUM_LEDS    ${totalLeds}
 #define BRIGHTNESS  50
+#define MAX_LEDS_PER_COLOR 50
 
 CRGB leds[NUM_LEDS];
 
-struct LEDColor {
-  uint16_t index;
+struct LEDGroup {
+  uint8_t count;
+  uint16_t indices[MAX_LEDS_PER_COLOR];
   uint8_t r, g, b;
 };
 
-const LEDColor ledColors[] = {
+const LEDGroup ledGroups[] = {
 ${ledData}
 };
 
-const uint8_t numColors = ${selected.length};
+const uint8_t numGroups = ${Object.keys(colorGroups).length};
 
 void setup() {
   FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
@@ -941,8 +969,10 @@ void setup() {
 
 void loop() {
   FastLED.clear();
-  for(uint8_t i = 0; i < numColors; i++) {
-    leds[ledColors[i].index] = CRGB(ledColors[i].r, ledColors[i].g, ledColors[i].b);
+  for(uint8_t g = 0; g < numGroups; g++) {
+    for(uint8_t i = 0; i < ledGroups[g].count; i++) {
+      leds[ledGroups[g].indices[i]] = CRGB(ledGroups[g].r, ledGroups[g].g, ledGroups[g].b);
+    }
   }
   FastLED.show();
   delay(50);
@@ -955,7 +985,6 @@ void loop() {
         { title: 'STM32', code: stm32Code }
     ];
 
-    // Buat HTML structure dulu tanpa kode
     output.innerHTML = codes.map((item, idx) => `
         <div class="code-section">
             <div class="code-header">
@@ -966,7 +995,6 @@ void loop() {
         </div>
     `).join('');
     
-    // Kemudian set kode menggunakan textContent (tidak akan di-escape)
     codes.forEach((item, idx) => {
         document.getElementById(`code-pre-${idx}`).textContent = item.code;
     });
