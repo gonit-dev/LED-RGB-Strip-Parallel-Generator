@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LED RGB Strip Parallel - Coordinate Generator</title>
+    <title>LED RGB Matrix Serpentine / Linear Coordinate Generator</title>
     <link rel="stylesheet" href="css/foundation.min.css">
     <style>
         * {
@@ -276,12 +276,15 @@
         }
 
         .wire-example {
-            font-family: monospace;
-            font-size: 10px;
-            line-height: 1.4;
-            color: #555;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.6;
+            color: #333;
             white-space: pre;
             overflow-x: auto;
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
         }
 
         .wire-line {
@@ -380,7 +383,7 @@
     <div class="grid-container">
         <div class="grid-x grid-padding-x">
             <div class="cell">
-                <h1>🎨 LED RGB Strip Parallel - Coordinate Generator</h1>
+                <h1>🎨 LED RGB Matrix Serpentine & Linear - Coordinate Generator</h1>
                 <p class="subtitle">Drag & Drop warna ke LED atau klik LED lalu pilih warna</p>
             </div>
         </div>
@@ -559,36 +562,41 @@
             if (state.zigzag) {
                 info.innerHTML = `
                     <div class="wiring-diagram">
-                        <h4>🔌 Sambungan Zigzag:</h4>
+                        <h4>🔌 Sambungan Serpentine (Zigzag):</h4>
                         <div class="wire-example">
-<span class="wire-line">Strip 1      Strip 2</span>
-<span class="wire-line"><span class="wire-data">DI</span>→→→<span class="wire-data">DO</span>────<span class="wire-data">DI</span>→→→<span class="wire-data">DO</span></span>
-<span class="wire-line"><span class="wire-gnd">GND</span>───<span class="wire-gnd">GND</span>\\/<span class="wire-gnd">GND</span>───<span class="wire-gnd">GND</span></span>
-<span class="wire-line"><span class="wire-vcc">5V</span>────<span class="wire-vcc">5V</span>/\\<span class="wire-vcc">5V</span>────<span class="wire-vcc">5V</span></span>
-<span class="wire-line">LED 0-${state.ledsPerStrip-1}  LED ${state.ledsPerStrip+state.ledsPerStrip-1}-${state.ledsPerStrip}</span>
-<span class="wire-line">(Kanan)    (Kiri)</span>
+        <span class="wire-line">Strip 1 (Row 1)</span>
+        <span class="wire-line"><span class="wire-data">DI</span>→→→→→→→→→→→<span class="wire-data">DO</span></span>
+        <span class="wire-line">[0][1][2][3]...[${state.ledsPerStrip-1}]</span>
+        <span class="wire-line">                ↓</span>
+        <span class="wire-line">         kabel pendek</span>
+        <span class="wire-line">                ↓</span>
+        <span class="wire-line">Strip 2 (Row 2)</span>
+        <span class="wire-line"><span class="wire-data">DO</span>←←←←←←←←←←←<span class="wire-data">DI</span></span>
+        <span class="wire-line">[${state.ledsPerStrip*2-1}]...[${state.ledsPerStrip+1}][${state.ledsPerStrip}]</span>
 
-<span class="wire-arrow">✅ Kabel pendek</span>
-<span class="wire-arrow">✅ Hemat kabel</span>
-<span class="wire-arrow">✅ Arah bolak-balik</span>
+        <span class="wire-arrow">✅ Arah bolak-balik horizontal</span>
+        <span class="wire-arrow">✅ Kabel pendek antar strip</span>
+        <span class="wire-arrow">✅ Hemat kabel</span>
+        <span class="wire-arrow">✅ Satu jalur data (bukan paralel)</span>
                         </div>
                     </div>
                 `;
             } else {
                 info.innerHTML = `
                     <div class="wiring-diagram">
-                        <h4>🔌 Sambungan Normal:</h4>
+                        <h4>🔌 Sambungan Linear (Normal):</h4>
                         <div class="wire-example">
-<span class="wire-line">Strip 1      Strip 2</span>
-<span class="wire-line"><span class="wire-data">DI</span>→→→<span class="wire-data">DO</span>    <span class="wire-data">DI</span>→→→<span class="wire-data">DO</span></span>
-<span class="wire-line"><span class="wire-gnd">GND</span>───<span class="wire-gnd">GND</span>────<span class="wire-gnd">GND</span>───<span class="wire-gnd">GND</span></span>
-<span class="wire-line"><span class="wire-vcc">5V</span>────<span class="wire-vcc">5V</span>────<span class="wire-vcc">5V</span>────<span class="wire-vcc">5V</span></span>
-<span class="wire-line">LED 0-${state.ledsPerStrip-1}  LED ${state.ledsPerStrip}-${state.ledsPerStrip+state.ledsPerStrip-1}</span>
-<span class="wire-line">(Kanan)    (Kanan)</span>
+        <span class="wire-line">Strip 1 (Row 1)</span>
+        <span class="wire-line"><span class="wire-data">DI</span>→→→→→→→→→→→<span class="wire-data">DO</span></span>
+        <span class="wire-line">[0][1][2][3]...[${state.ledsPerStrip-1}]</span>
+        <span class="wire-line">                </span>
+        <span class="wire-line">Strip 2 (Row 2)</span>
+        <span class="wire-line"><span class="wire-data">DI</span>→→→→→→→→→→→<span class="wire-data">DO</span></span>
+        <span class="wire-line">[${state.ledsPerStrip}][${state.ledsPerStrip+1}]...[${state.ledsPerStrip*2-1}]</span>
 
-<span class="wire-arrow">⚠️ Kabel panjang</span>
-<span class="wire-arrow">✅ Arah sama</span>
-<span class="wire-arrow">✅ Mudah debug</span>
+        <span class="wire-arrow">⚠️ Arah sama semua</span>
+        <span class="wire-arrow">⚠️ Kabel panjang kembali ke awal</span>
+        <span class="wire-arrow">✅ Mudah debug</span>
                         </div>
                     </div>
                 `;
@@ -600,25 +608,45 @@
             let index = 0;
             
             for (let row = 0; row < state.rows; row++) {
+                // Zigzag berlaku per ROW, bukan per strip!
+                const isReverse = state.zigzag && row % 2 === 1;
+                
                 for (let col = 0; col < state.cols; col++) {
                     for (let led = 0; led < state.ledsPerStrip; led++) {
                         let x, y;
                         
-                        // PERBAIKAN: Zigzag berlaku untuk baris (row), bukan kolom
-                        const isReverse = state.zigzag && row % 2 === 1;
-                        const effectiveLed = isReverse ? state.ledsPerStrip - 1 - led : led;
-                        
                         if (state.startCorner === 'bottom-left') {
-                            x = col * state.ledsPerStrip + effectiveLed;
+                            if (isReverse) {
+                                // Row ganjil: dari kanan ke kiri
+                                x = (state.cols - 1 - col) * state.ledsPerStrip + (state.ledsPerStrip - 1 - led);
+                            } else {
+                                // Row genap: dari kiri ke kanan
+                                x = col * state.ledsPerStrip + led;
+                            }
                             y = state.rows - 1 - row;
+                            
                         } else if (state.startCorner === 'bottom-right') {
-                            x = (state.cols - 1 - col) * state.ledsPerStrip + (state.ledsPerStrip - 1 - effectiveLed);
+                            if (isReverse) {
+                                x = col * state.ledsPerStrip + led;
+                            } else {
+                                x = (state.cols - 1 - col) * state.ledsPerStrip + (state.ledsPerStrip - 1 - led);
+                            }
                             y = state.rows - 1 - row;
+                            
                         } else if (state.startCorner === 'top-left') {
-                            x = col * state.ledsPerStrip + effectiveLed;
+                            if (isReverse) {
+                                x = (state.cols - 1 - col) * state.ledsPerStrip + (state.ledsPerStrip - 1 - led);
+                            } else {
+                                x = col * state.ledsPerStrip + led;
+                            }
                             y = row;
+                            
                         } else { // top-right
-                            x = (state.cols - 1 - col) * state.ledsPerStrip + (state.ledsPerStrip - 1 - effectiveLed);
+                            if (isReverse) {
+                                x = col * state.ledsPerStrip + led;
+                            } else {
+                                x = (state.cols - 1 - col) * state.ledsPerStrip + (state.ledsPerStrip - 1 - led);
+                            }
                             y = row;
                         }
                         
